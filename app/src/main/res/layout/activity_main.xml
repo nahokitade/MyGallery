@@ -7,13 +7,13 @@
                 android:orientation="vertical"
                 tools:context=".MainActivity">
 
-  <GridLayout
+  <GridView
       android:layout_width="fill_parent"
       android:layout_height="wrap_content"
       android:layout_alignParentStart="false"
       android:layout_alignParentEnd="false"
       android:numColumns="2"
-      android:id="@+id/photo_grid"></GridLayout>
+      android:id="@+id/photo_grid"></GridView>
 
   <Button
       android:layout_width="match_parent"
