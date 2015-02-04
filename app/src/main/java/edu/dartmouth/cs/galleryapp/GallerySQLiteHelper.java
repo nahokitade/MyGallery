@@ -37,7 +37,7 @@ public class GallerySQLiteHelper extends SQLiteOpenHelper {
   private static final String CREATE_TABLE_ENTRIES = "create table "
       + TABLE_PICTURES + "("
       + COLUMN_ID + " integer primary key autoincrement, "
-  //    + COLUMN_DATE_TIME + " datetime not null, "
+      + COLUMN_DATE_TIME + " datetime not null, "
       + COLUMN_LATITUDE + " real, "
       + COLUMN_LONGITUDE + " real,"
       + COLUMN_PICTURE + " blob"
@@ -99,19 +99,19 @@ public class GallerySQLiteHelper extends SQLiteOpenHelper {
   // Query the entire table, return all rows
   public ArrayList<PictureEntry> fetchEntries() {
     database = getReadableDatabase();
-    ArrayList<PictureEntry> exercises = new ArrayList<>();
+    ArrayList<PictureEntry> pictures = new ArrayList<>();
     Cursor cursor = database.query(GallerySQLiteHelper.TABLE_PICTURES,
         allColumns, null, null, null, null, null);
 
     if (cursor != null && cursor.moveToFirst()) {
       while (!cursor.isAfterLast()) {
         PictureEntry exerciseEnt = cursorToPicture(cursor);
-        exercises.add(exerciseEnt);
+        pictures.add(exerciseEnt);
         cursor.moveToNext();
       }
+      cursor.close();
     }
-    cursor.close();
-    return exercises;
+    return pictures;
   }
 
   @Override
@@ -122,18 +122,6 @@ public class GallerySQLiteHelper extends SQLiteOpenHelper {
     db.execSQL("DROP TABLE IF EXISTS " + TABLE_PICTURES);
     onCreate(db);
   }
-
-
-
-//  strImageID[i] = cursor.getString(cursor.getColumnIndex("_id"));
-//  byte[] data = cursor.getBlob(cursor.getColumnIndex("image"));
-//  Bitmap thumbnail = BitmapFactory.decodeByteArray(data, 0, data.length);
-//  images.AddImage(thumbnail);
-
-//  Bitmap bitmap;
-//  ByteArrayOutputStream os = new ByteArrayOutputStream();
-//  bitmap.(Bitmap.CompressFormat.PNG, 100, os);
-
 
   private PictureEntry cursorToPicture(Cursor cursor) {
     PictureEntry pictureEnt = new PictureEntry();

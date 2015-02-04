@@ -3,9 +3,10 @@ package edu.dartmouth.cs.galleryapp;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.net.Uri;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -110,7 +111,14 @@ public class MainActivity extends Activity {
       // add image to database
       PictureEntry newPic = new PictureEntry();
       Bundle extras = data.getExtras();
-      Bitmap photo = (Bitmap) extras.getParcelable("data");
+      Bitmap photo = extras.getParcelable("data");
+      Location location = getPictureLocation();
+      if (location != null) {
+        double longitude = location.getLongitude();
+        double latitude = location.getLatitude();
+        newPic.setmLongitude(longitude);
+        newPic.setmLatitude(latitude);
+      }
       newPic.setBitmapPicture(photo);
       gallerySQLiteHelper.insertEntry(newPic);
 
@@ -129,6 +137,15 @@ public class MainActivity extends Activity {
       }
 
     }
+  }
+
+  public Location getPictureLocation() {
+    LocationManager manager = (LocationManager) getSystemService(LOCATION_SERVICE);
+    Criteria criteria = new Criteria();
+    criteria.setAccuracy(Criteria.ACCURACY_FINE);
+    String provider = manager.getBestProvider(criteria, true);
+    if (provider != null) return manager.getLastKnownLocation(provider);
+    return null;
   }
 
   public class ImagesAdapter extends ArrayAdapter<PictureEntry> {
@@ -151,8 +168,9 @@ public class MainActivity extends Activity {
       else {
         imageView = (ImageView) convertView;
       }
+      long rowId = images.get(pos).getId();
 
-      imageView.setImageBitmap(gallerySQLiteHelper.fetchEntryByIndex(pos + 1).getBitmapPicture());
+      imageView.setImageBitmap(gallerySQLiteHelper.fetchEntryByIndex(rowId).getBitmapPicture());
 
       return imageView;
     }

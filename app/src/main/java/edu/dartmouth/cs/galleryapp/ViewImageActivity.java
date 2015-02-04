@@ -1,13 +1,13 @@
 package edu.dartmouth.cs.galleryapp;
 
-    import android.app.Activity;
-    import android.content.Intent;
-    import android.os.Bundle;
-    import android.util.Log;
-    import android.view.Menu;
-    import android.view.MenuItem;
-    import android.view.View;
-    import android.widget.ImageView;
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 
 public class ViewImageActivity extends Activity {
@@ -27,6 +27,10 @@ public class ViewImageActivity extends Activity {
     PictureEntry entry = gallerySQLiteHelper.fetchEntryByIndex(position);
 
     ImageView image = (ImageView) findViewById(R.id.image);
+    TextView textView = (TextView) findViewById(R.id.photo_text);
+
+    textView.setText(entry.getmDateTime() +
+        " GPS:" + entry.getmLatitude() + ", " + entry.getmLongitude() );
     image.setImageBitmap(entry.getBitmapPicture());
   }
 
