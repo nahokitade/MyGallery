@@ -49,8 +49,9 @@ public class MainActivity extends Activity {
     grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
       @Override
       public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-          Log.d(TAG, "position = "+position);
-        viewImage(position);
+          long rowId = images.get(position).getId();
+          Log.d(TAG, "image id = " + rowId);
+        viewImage(rowId);
 
       }
     });
@@ -97,7 +98,7 @@ public class MainActivity extends Activity {
   }
 
   // clicked picture handler
-  public void viewImage(int pos) {
+  public void viewImage(long pos) {
       // open ViewImageActivity screen and wait for delete
       Intent intent = new Intent(this, ViewImageActivity.class);
       intent.putExtra(DB_EXTRA, pos);

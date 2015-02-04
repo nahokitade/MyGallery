@@ -15,7 +15,7 @@ public class ViewImageActivity extends Activity {
   private static final int REQUEST_DELETE = 2;
   protected static final String DB_DELETE = "db_delete";
   GallerySQLiteHelper gallerySQLiteHelper = new GallerySQLiteHelper(this);
-  private long position;
+  private long rowId;
   Intent intent;
 
   @Override
@@ -23,14 +23,15 @@ public class ViewImageActivity extends Activity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_view_image);
     intent = getIntent();
-    position = intent.getIntExtra(MainActivity.DB_EXTRA, 0) + 1;
-    PictureEntry entry = gallerySQLiteHelper.fetchEntryByIndex(position);
+    rowId = intent.getLongExtra(MainActivity.DB_EXTRA, 0);
+    PictureEntry entry = gallerySQLiteHelper.fetchEntryByIndex(rowId);
 
     ImageView image = (ImageView) findViewById(R.id.image);
     TextView textView = (TextView) findViewById(R.id.photo_text);
 
     textView.setText(entry.getmDateTime() +
-        " GPS:" + entry.getmLatitude() + ", " + entry.getmLongitude() );
+        "\n GPS:" + entry.getmLatitude() + ", " + entry.getmLongitude() );
+
     image.setImageBitmap(entry.getBitmapPicture());
   }
 
@@ -59,8 +60,7 @@ public class ViewImageActivity extends Activity {
 
   // delete button handler
   public void imageDelete(View v) {
-    position = intent.getIntExtra(MainActivity.DB_EXTRA, 0);
-    gallerySQLiteHelper.removeEntry(position);
+    gallerySQLiteHelper.removeEntry(rowId);
     Intent result = new Intent();
     result.putExtra(DB_DELETE, true);
     setResult(REQUEST_DELETE, result);
