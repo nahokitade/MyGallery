@@ -3,20 +3,31 @@ package edu.dartmouth.cs.galleryapp;
     import android.app.Activity;
     import android.content.Intent;
     import android.os.Bundle;
+    import android.util.Log;
     import android.view.Menu;
     import android.view.MenuItem;
     import android.view.View;
+    import android.widget.ImageView;
 
 
 public class ViewImageActivity extends Activity {
 
   private static final int REQUEST_DELETE = 2;
-  private static final String DB_DELETE = "db_delete";
+  protected static final String DB_DELETE = "db_delete";
+  GallerySQLiteHelper gallerySQLiteHelper = new GallerySQLiteHelper(this);
+  private long position;
+  Intent intent;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_view_image);
+    intent = getIntent();
+    position = intent.getIntExtra(MainActivity.DB_EXTRA, 0) + 1;
+    PictureEntry entry = gallerySQLiteHelper.fetchEntryByIndex(position);
+
+    ImageView image = (ImageView) findViewById(R.id.image);
+    image.setImageBitmap(entry.getBitmapPicture());
   }
 
 
@@ -44,9 +55,11 @@ public class ViewImageActivity extends Activity {
 
   // delete button handler
   public void imageDelete(View v) {
-    Intent intent = getIntent();
-    //intent.putExtra(DB_DELETE, null);
-    setResult(REQUEST_DELETE, intent);
+    position = intent.getIntExtra(MainActivity.DB_EXTRA, 0);
+    gallerySQLiteHelper.removeEntry(position);
+    Intent result = new Intent();
+    result.putExtra(DB_DELETE, true);
+    setResult(REQUEST_DELETE, result);
     finish();
 
   }

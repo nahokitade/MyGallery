@@ -26,7 +26,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="Delete"
-        android:id="@+id/delete_button" />
+        android:id="@+id/delete_button"
+        android:onClick="imageDelete"/>
 
   </LinearLayout>
 </ScrollView>

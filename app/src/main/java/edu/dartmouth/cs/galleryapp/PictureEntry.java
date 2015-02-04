@@ -14,7 +14,7 @@ import java.util.GregorianCalendar;
 public class PictureEntry {
   public static final String DATE_FORMAT_STRING = "HH:mm:ss MMM dd yyyy";
   private Long id;
-  private Calendar mDateTime;    // When does this entry happen
+  private Calendar mDateTime = Calendar.getInstance();    // When does this entry happen
   private double mLatitude; // Location list
   private double mLongitude;
   private Bitmap bitmapPicture;
@@ -65,7 +65,7 @@ public class PictureEntry {
   }
 
   public Bitmap getBitmapPicture() {
-    return bitmapPicture;
+    return this.bitmapPicture;
   }
 
   public void setBitmapPicture(Bitmap bitmapPicture) {

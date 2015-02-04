@@ -37,7 +37,7 @@ public class GallerySQLiteHelper extends SQLiteOpenHelper {
   private static final String CREATE_TABLE_ENTRIES = "create table "
       + TABLE_PICTURES + "("
       + COLUMN_ID + " integer primary key autoincrement, "
-      + COLUMN_DATE_TIME + " datetime not null, "
+  //    + COLUMN_DATE_TIME + " datetime not null, "
       + COLUMN_LATITUDE + " real, "
       + COLUMN_LONGITUDE + " real,"
       + COLUMN_PICTURE + " blob"
@@ -73,7 +73,9 @@ public class GallerySQLiteHelper extends SQLiteOpenHelper {
   // Remove an entry by giving its index
   public void removeEntry(long rowIndex) {
     database = getWritableDatabase();
-    database.delete(TABLE_PICTURES, COLUMN_ID + "=" + rowIndex, null);
+    String id = String.valueOf(rowIndex);
+    int delete = database.delete(TABLE_PICTURES, COLUMN_ID + " = ?", new String[] {id});
+    Log.d("SQL", "deleted entry " + delete);
     database.close();
   }
 
@@ -86,6 +88,9 @@ public class GallerySQLiteHelper extends SQLiteOpenHelper {
     if (cursor != null && cursor.moveToFirst()) {
       exerciseEnt = cursorToPicture(cursor);
       cursor.close();
+    }
+    else {
+        Log.d("SQL", "cannot find row with id " + rowId);
     }
     database.close();
     return exerciseEnt;

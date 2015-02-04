@@ -3,8 +3,12 @@ package edu.dartmouth.cs.galleryapp;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,24 +24,33 @@ import java.util.ArrayList;
 public class MainActivity extends Activity {
 
   private static final int REQUEST_CAMERA = 0;
-  private static final int REQUEST_IMAGE = 1;
-  private static final int REQUEST_DELETE = 2;
+  private static final int REQUEST_DELETE = 1;
+  protected static final String DB_EXTRA = "db_entry";
 
-  ArrayList<Object> images = new ArrayList<>();
+  ArrayList<PictureEntry> images = new ArrayList<>();
+  GallerySQLiteHelper gallerySQLiteHelper;
+  ImagesAdapter adapter;
+
+  private static final String TAG = "MainActivity";
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
+    gallerySQLiteHelper = new GallerySQLiteHelper(this);
+    images = gallerySQLiteHelper.fetchEntries();
     GridView grid = (GridView) findViewById(R.id.photo_grid);
 
     // populate gridview
-    grid.setAdapter(new ImagesAdapter(this, images));
+    adapter = new ImagesAdapter(this, images);
+    grid.setAdapter(adapter);
     grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
       @Override
       public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        getImage(position);
+          Log.d(TAG, "position = "+position);
+        viewImage(position);
+
       }
     });
 
@@ -67,17 +80,27 @@ public class MainActivity extends Activity {
     return super.onOptionsItemSelected(item);
   }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        images.clear();
+        images.addAll(gallerySQLiteHelper.fetchEntries());
+        adapter.notifyDataSetChanged();
+        Log.d(TAG, "data set refreshed");
+    }
+
   // picture button handler
   public void takePic(View v) {
     Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
-
     startActivityForResult(intent, REQUEST_CAMERA);
   }
 
   // clicked picture handler
-  public void getImage(int pos) {
-
+  public void viewImage(int pos) {
+      // open ViewImageActivity screen and wait for delete
+      Intent intent = new Intent(this, ViewImageActivity.class);
+      intent.putExtra(DB_EXTRA, pos);
+      startActivityForResult(intent, REQUEST_DELETE);
   }
 
   @Override
@@ -85,34 +108,34 @@ public class MainActivity extends Activity {
     // handle camera return
     if (request == REQUEST_CAMERA && result == RESULT_OK) {
       // add image to database
+      PictureEntry newPic = new PictureEntry();
+      Bundle extras = data.getExtras();
+      Bitmap photo = (Bitmap) extras.getParcelable("data");
+      newPic.setBitmapPicture(photo);
+      gallerySQLiteHelper.insertEntry(newPic);
 
       // update gridview
+      onResume();
 
-    }
-
-    // handle image selected
-    if (request == REQUEST_IMAGE && result == RESULT_OK) {
-      // display image page
-      Intent intent = new Intent(this, ViewImageActivity.class);
-
-      startActivityForResult(intent, REQUEST_DELETE);
     }
 
     // handle image deleted in ViewImageActivity
     if (request == REQUEST_DELETE && result == RESULT_OK) {
-      // remove image from database
+      boolean delete = data.getBooleanExtra(ViewImageActivity.DB_DELETE, false);
 
       // update gridview
+      if (delete) {
+          onResume();
+      }
 
     }
   }
 
-
-  public class ImagesAdapter extends ArrayAdapter<Object> {
+  public class ImagesAdapter extends ArrayAdapter<PictureEntry> {
     private Context mContext;
 
     // what kind of base adapter??
-    public ImagesAdapter(Context context, ArrayList<Object> objects) {
+    public ImagesAdapter(Context context, ArrayList<PictureEntry> objects) {
       super(context, 0, objects);
       mContext = context;
     }
@@ -123,13 +146,13 @@ public class MainActivity extends Activity {
       ImageView imageView;
       if (convertView == null) {
         imageView = new ImageView(mContext);
-        imageView.setLayoutParams(new GridView.LayoutParams(85, 85));
+        imageView.setLayoutParams(new GridView.LayoutParams(400, 400));
       }
       else {
         imageView = (ImageView) convertView;
       }
 
-      // imageView.setImageResource(images[index]]);
+      imageView.setImageBitmap(gallerySQLiteHelper.fetchEntryByIndex(pos + 1).getBitmapPicture());
 
       return imageView;
     }
